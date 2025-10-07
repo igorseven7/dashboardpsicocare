@@ -108,21 +108,22 @@
         const GID_ADSET = '195619355';
         const GID_AD = '1336040822';
 
-        // URL mais estável para exportar CSV de planilhas públicas
-        const buildSheetUrl = (gid) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+        // URL mais estável para exportar CSV de planilhas públicas (usando a API de Visualização)
+        const buildSheetUrl = (gid) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${gid}`;
 
         let allCampaignData = [], allAdSetData = [], allAdData = [];
         let dailyChartInstance, campaignsChartInstance, ageChartInstance;
 
         // --- Funções para Processar Dados ---
         function parseCSV(text) {
-            const lines = text.trim().split(/\r\n|\n/);
+            // A API gviz/tq retorna um CSV que pode ter aspas duplas. Esta função lida com isso.
+            const lines = text.trim().split('\n');
             if (lines.length < 2) return [];
-            const headers = lines[0].split(',').map(h => h.trim());
+            const headers = lines[0].slice(1, -1).split('","'); // Remove aspas do início/fim e divide
             return lines.slice(1).map(line => {
-                const data = line.split(',');
+                const data = line.slice(1, -1).split('","');
                 return headers.reduce((obj, nextKey, index) => {
-                    obj[nextKey] = data[index] ? data[index].trim() : '';
+                    obj[nextKey.trim()] = data[index] ? data[index].trim() : '';
                     return obj;
                 }, {});
             });
