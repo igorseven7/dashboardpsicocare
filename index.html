@@ -13,52 +13,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilo base para a página */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Fundo escuro */
-            color: #F9FAFB; /* Texto claro */
-        }
-        /* Estilo customizado para os cards do dashboard */
-        .dashboard-card {
-            background-color: #1F2937; /* Cor de fundo do card */
-            border: 1px solid #374151; /* Borda sutil */
-            border-radius: 0.75rem; /* Bordas arredondadas */
-            padding: 1.5rem; /* Espaçamento interno */
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        /* Estilo para a tabela */
-        .table-container {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        /* Scrollbar customizada para a tabela */
-        .table-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #1F2937;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background-color: #4B5563;
-            border-radius: 10px;
-            border: 2px solid #1F2937;
-        }
-        /* Estilo para o overlay de carregamento */
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(17, 24, 39, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            color: white;
-            font-size: 1.25rem;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #111827; color: #F9FAFB; }
+        .dashboard-card { background-color: #1F2937; border: 1px solid #374151; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .table-container { max-height: 300px; overflow-y: auto; }
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #1F2937; }
+        .table-container::-webkit-scrollbar-thumb { background-color: #4B5563; border-radius: 10px; border: 2px solid #1F2937; }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(17, 24, 39, 0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; color: white; font-size: 1.25rem; }
+        .filter-btn { background-color: #374151; color: #D1D5DB; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background-color 0.2s; }
+        .filter-btn:hover { background-color: #4B5563; }
+        .filter-btn.active { background-color: #2563EB; color: white; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
@@ -68,18 +32,16 @@
     </div>
 
     <div class="max-w-7xl mx-auto">
-
         <!-- Cabeçalho -->
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-white">Dashboard PsicoCare</h1>
                 <p class="text-gray-400 mt-1">Análise de Desempenho de Campanhas</p>
             </div>
-            <div class="flex flex-col sm:flex-row items-center gap-2">
-                <input type="date" id="date-start" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <span class="text-gray-400">até</span>
-                <input type="date" id="date-end" class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button id="filter-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-full sm:w-auto">Filtrar</button>
+            <div id="filter-container" class="flex items-center gap-2">
+                <button id="btn-7-days" class="filter-btn active">Últimos 7 dias</button>
+                <button id="btn-30-days" class="filter-btn">Últimos 30 dias</button>
+                <button id="btn-all-time" class="filter-btn">Período Completo</button>
             </div>
         </header>
 
@@ -87,31 +49,31 @@
         <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             <div class="dashboard-card text-center">
                 <h3 class="text-sm font-medium text-gray-400">Valor Gasto</h3>
-                <p id="kpi-valor-gasto" class="text-2xl font-semibold mt-1">R$ 0,00</p>
+                <p id="kpi-valor-gasto" class="text-2xl font-semibold mt-1">-</p>
             </div>
             <div class="dashboard-card text-center">
                 <h3 class="text-sm font-medium text-gray-400">Mensagens</h3>
-                <p id="kpi-mensagens" class="text-2xl font-semibold mt-1">0</p>
+                <p id="kpi-mensagens" class="text-2xl font-semibold mt-1">-</p>
             </div>
             <div class="dashboard-card text-center">
                 <h3 class="text-sm font-medium text-gray-400">Custo por Mensagem</h3>
-                <p id="kpi-custo-mensagem" class="text-2xl font-semibold mt-1">R$ 0,00</p>
+                <p id="kpi-custo-mensagem" class="text-2xl font-semibold mt-1">-</p>
             </div>
             <div class="dashboard-card text-center">
                 <h3 class="text-sm font-medium text-gray-400">Impressões</h3>
-                <p id="kpi-impressoes" class="text-2xl font-semibold mt-1">0</p>
+                <p id="kpi-impressoes" class="text-2xl font-semibold mt-1">-</p>
             </div>
             <div class="dashboard-card text-center">
                 <h3 class="text-sm font-medium text-gray-400">Alcance</h3>
-                <p id="kpi-alcance" class="text-2xl font-semibold mt-1">0</p>
+                <p id="kpi-alcance" class="text-2xl font-semibold mt-1">-</p>
             </div>
             <div class="dashboard-card text-center">
                 <h3 class="text-sm font-medium text-gray-400">CPM</h3>
-                <p id="kpi-cpm" class="text-2xl font-semibold mt-1">R$ 0,00</p>
+                <p id="kpi-cpm" class="text-2xl font-semibold mt-1">-</p>
             </div>
         </section>
 
-        <!-- Gráfico Principal e Análises Demográficas -->
+        <!-- Gráficos e Tabelas -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <div class="dashboard-card lg:col-span-2">
                 <h3 class="text-lg font-semibold mb-4">Desempenho Diário (Mensagens vs. Custo)</h3>
@@ -128,47 +90,16 @@
                 </div>
             </div>
         </section>
-
-        <!-- Tabelas de Detalhamento -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="dashboard-card">
                 <h3 class="text-lg font-semibold mb-4">Desempenho por Conjunto de Anúncios</h3>
-                <div class="table-container">
-                    <table class="w-full text-left text-sm text-gray-300">
-                        <thead class="bg-gray-700 text-xs uppercase text-gray-400 sticky top-0">
-                            <tr>
-                                <th scope="col" class="px-4 py-3">Conjunto</th>
-                                <th scope="col" class="px-4 py-3 text-right">Gasto</th>
-                                <th scope="col" class="px-4 py-3 text-right">Mensagens</th>
-                                <th scope="col" class="px-4 py-3 text-right">Custo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adsets-table-body">
-                           <!-- Linhas da tabela serão inseridas via JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+                <div id="adsets-table-container" class="table-container"></div>
             </div>
             <div class="dashboard-card">
                 <h3 class="text-lg font-semibold mb-4">Desempenho por Anúncio</h3>
-                 <div class="table-container">
-                    <table class="w-full text-left text-sm text-gray-300">
-                        <thead class="bg-gray-700 text-xs uppercase text-gray-400 sticky top-0">
-                            <tr>
-                                <th scope="col" class="px-4 py-3">Anúncio</th>
-                                <th scope="col" class="px-4 py-3 text-right">Gasto</th>
-                                <th scope="col" class="px-4 py-3 text-right">Cliques</th>
-                                <th scope="col" class="px-4 py-3 text-right">CTR</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ads-table-body">
-                           <!-- Linhas da tabela serão inseridas via JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
+                 <div id="ads-table-container" class="table-container"></div>
             </div>
         </section>
-
     </div>
 
     <script>
@@ -177,71 +108,50 @@
         const GID_ADSET = '195619355';
         const GID_AD = '1336040822';
 
-        const URL_CAMPAIGN = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_CAMPAIGN}`;
-        const URL_ADSET = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_ADSET}`;
-        const URL_AD = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_AD}`;
+        // URL mais estável para exportar CSV de planilhas públicas
+        const buildSheetUrl = (gid) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
 
-        // Variáveis para guardar todos os dados e instâncias dos gráficos
         let allCampaignData = [], allAdSetData = [], allAdData = [];
         let dailyChartInstance, campaignsChartInstance, ageChartInstance;
 
-        // --- FUNÇÕES HELPER PARA PROCESSAR DADOS ---
-
+        // --- Funções para Processar Dados ---
         function parseCSV(text) {
-            const lines = text.split(/\r\n/);
+            const lines = text.trim().split(/\r\n|\n/);
             if (lines.length < 2) return [];
-            const headers = lines[0].split(',');
+            const headers = lines[0].split(',').map(h => h.trim());
             return lines.slice(1).map(line => {
                 const data = line.split(',');
                 return headers.reduce((obj, nextKey, index) => {
-                    obj[nextKey] = data[index];
+                    obj[nextKey] = data[index] ? data[index].trim() : '';
                     return obj;
                 }, {});
             });
         }
-
-        function parseCurrency(value) {
-            if (!value || typeof value !== 'string') return 0;
-            return parseFloat(value.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
-        }
-
-        function parseNumber(value) {
-            if (!value || typeof value !== 'string') return 0;
-            return parseInt(value.replace(/\./g, ''), 10);
-        }
-        
-        function parsePercentage(value) {
-            if (!value || typeof value !== 'string') return 0;
-            return parseFloat(value.replace('%', '').replace(',', '.').trim());
-        }
-
-        function parseDate(dateStr) {
-            if (!dateStr || typeof dateStr !== 'string') return null;
+        const parseCurrency = (value) => value ? parseFloat(String(value).replace(/[^0-9,-]+/g, "").replace(",", ".")) || 0 : 0;
+        const parseNumber = (value) => value ? parseInt(String(value).replace(/\./g, '')) || 0 : 0;
+        const parsePercentage = (value) => value ? parseFloat(String(value).replace(",", ".")) || 0 : 0;
+        const parseDate = (dateStr) => {
+            if (!dateStr) return null;
             const parts = dateStr.split('/');
-            if (parts.length !== 3) return null;
-            // Formato YYYY-MM-DD para compatibilidade
-            return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-        }
+            return parts.length === 3 ? `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}` : null;
+        };
+        const formatDate = (date) => date.toISOString().split('T')[0];
 
-        // --- FUNÇÃO PRINCIPAL PARA ATUALIZAR O DASHBOARD ---
-
+        // --- Função Principal de Atualização do Dashboard ---
         function updateDashboard(campaignData, adSetData, adData) {
-            document.getElementById('adsets-table-body').innerHTML = '';
-            document.getElementById('ads-table-body').innerHTML = '';
-            if(dailyChartInstance) dailyChartInstance.destroy();
-            if(campaignsChartInstance) campaignsChartInstance.destroy();
-            if(ageChartInstance) ageChartInstance.destroy();
-            
+            // Limpa gráficos antigos
+            [dailyChartInstance, campaignsChartInstance, ageChartInstance].forEach(chart => chart?.destroy());
+
             const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             const formatNumber = (value) => value.toLocaleString('pt-BR');
 
-            // 1. Calcular e exibir KPIs
+            // 1. KPIs
             const totalSpend = campaignData.reduce((sum, item) => sum + item['Valor gasto (BRL)'], 0);
             const totalMessages = campaignData.reduce((sum, item) => sum + item['Conversas por mensagens iniciadas'], 0);
             const totalImpressions = campaignData.reduce((sum, item) => sum + item['Impressões'], 0);
             const totalReach = campaignData.reduce((sum, item) => sum + item['Alcance'], 0);
-            const costPerMessage = totalMessages > 0 ? totalSpend / totalMessages : 0;
-            const cpm = totalImpressions > 0 ? (totalSpend / totalImpressions * 1000) : 0;
+            const costPerMessage = totalMessages ? totalSpend / totalMessages : 0;
+            const cpm = totalImpressions ? (totalSpend / totalImpressions) * 1000 : 0;
 
             document.getElementById('kpi-valor-gasto').textContent = formatCurrency(totalSpend);
             document.getElementById('kpi-mensagens').textContent = formatNumber(totalMessages);
@@ -249,127 +159,90 @@
             document.getElementById('kpi-impressoes').textContent = formatNumber(totalImpressions);
             document.getElementById('kpi-alcance').textContent = formatNumber(totalReach);
             document.getElementById('kpi-cpm').textContent = formatCurrency(cpm);
-
+            
             // 2. Gráfico de Desempenho Diário
             const dailyData = campaignData.reduce((acc, curr) => {
-                const day = new Date(curr.Dia + 'T00:00:00').toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+                const day = curr.Dia;
                 if (!acc[day]) acc[day] = { messages: 0, spend: 0 };
                 acc[day].messages += curr['Conversas por mensagens iniciadas'];
                 acc[day].spend += curr['Valor gasto (BRL)'];
                 return acc;
             }, {});
-            const dailyLabels = Object.keys(dailyData).sort((a,b) => new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-')));
+            const dailyLabels = Object.keys(dailyData).sort();
             const dailyMessages = dailyLabels.map(day => dailyData[day].messages);
             const dailyCostPerMessage = dailyLabels.map(day => (dailyData[day].spend / dailyData[day].messages) || 0);
 
-            const dailyCtx = document.getElementById('dailyPerformanceChart').getContext('2d');
-            dailyChartInstance = new Chart(dailyCtx, { type: 'bar', data: { labels: dailyLabels, datasets: [ { label: 'Mensagens', data: dailyMessages, backgroundColor: 'rgba(59, 130, 246, 0.7)', yAxisID: 'y' }, { label: 'Custo por Mensagem', data: dailyCostPerMessage, borderColor: 'rgba(236, 72, 153, 1)', type: 'line', tension: 0.3, yAxisID: 'y1' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, position: 'left', ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255, 255, 255, 0.1)'}}, y1: { beginAtZero: true, position: 'right', ticks: { color: '#9CA3AF' }, grid: { drawOnChartArea: false }}, x: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255, 255, 255, 0.1)'}}}, plugins: { legend: { labels: { color: '#F9FAFB' } }}}});
+            dailyChartInstance = new Chart(document.getElementById('dailyPerformanceChart'), { type: 'bar', data: { labels: dailyLabels.map(d => new Date(d+'T00:00:00').toLocaleDateString('pt-BR')), datasets: [ { label: 'Mensagens', data: dailyMessages, backgroundColor: 'rgba(59, 130, 246, 0.7)', yAxisID: 'y' }, { label: 'Custo por Mensagem', data: dailyCostPerMessage, borderColor: 'rgba(236, 72, 153, 1)', type: 'line', tension: 0.3, yAxisID: 'y1' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, position: 'left', ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255, 255, 255, 0.1)'}}, y1: { beginAtZero: true, position: 'right', ticks: { color: '#9CA3AF' }, grid: { drawOnChartArea: false }}, x: { ticks: { color: '#9CA3AF' }, grid: { color: 'rgba(255, 255, 255, 0.1)'}}}, plugins: { legend: { labels: { color: '#F9FAFB' } }}}});
 
-            // 3. Gráfico de Campanhas
-            const campaignsSummary = campaignData.reduce((acc, curr) => {
-                const name = curr['Nome da campanha'];
-                if (!acc[name]) acc[name] = 0;
-                acc[name] += curr['Conversas por mensagens iniciadas'];
-                return acc;
-            }, {});
-            const campaignCtx = document.getElementById('campaignsChart').getContext('2d');
-            campaignsChartInstance = new Chart(campaignCtx, { type: 'doughnut', data: { labels: Object.keys(campaignsSummary), datasets: [{ data: Object.values(campaignsSummary), backgroundColor: ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#6366F1', '#8B5CF6'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#F9FAFB' } } } } });
+            // 3. Gráficos de Pizza
+            const campaignsSummary = campaignData.reduce((acc, curr) => { acc[curr['Nome da campanha']] = (acc[curr['Nome da campanha']] || 0) + curr['Conversas por mensagens iniciadas']; return acc; }, {});
+            campaignsChartInstance = new Chart(document.getElementById('campaignsChart'), { type: 'doughnut', data: { labels: Object.keys(campaignsSummary), datasets: [{ data: Object.values(campaignsSummary), backgroundColor: ['#3B82F6', '#EC4899', '#10B981', '#F59E0B', '#6366F1', '#8B5CF6'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#F9FAFB' } } } } });
             
-            // 4. Gráfico de Idade
-            const ageSummary = adSetData.reduce((acc, curr) => {
-                const age = curr['Idade'];
-                if (!acc[age]) acc[age] = 0;
-                acc[age] += curr['Conversas por mensagens iniciadas'];
-                return acc;
-            }, {});
-            const ageCtx = document.getElementById('ageChart').getContext('2d');
-            ageChartInstance = new Chart(ageCtx, { type: 'doughnut', data: { labels: Object.keys(ageSummary), datasets: [{ data: Object.values(ageSummary), backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#6366F1'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+            const ageSummary = adSetData.reduce((acc, curr) => { acc[curr['Idade']] = (acc[curr['Idade']] || 0) + curr['Conversas por mensagens iniciadas']; return acc; }, {});
+            ageChartInstance = new Chart(document.getElementById('ageChart'), { type: 'doughnut', data: { labels: Object.keys(ageSummary), datasets: [{ data: Object.values(ageSummary), backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#6366F1'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
 
-            // 5. Popular tabela de Conjuntos de Anúncios
-            const adsetsTableBody = document.getElementById('adsets-table-body');
-            adSetData.forEach(item => {
-                const costPerMessage = item['Conversas por mensagens iniciadas'] > 0 ? item['Valor gasto (BRL)'] / item['Conversas por mensagens iniciadas'] : 0;
-                adsetsTableBody.innerHTML += `<tr class="border-b border-gray-700 hover:bg-gray-600"><td class="px-4 py-3 font-medium text-white">${item['Nome do conjunto de anúncios']}</td><td class="px-4 py-3 text-right">${formatCurrency(item['Valor gasto (BRL)'])}</td><td class="px-4 py-3 text-right">${formatNumber(item['Conversas por mensagens iniciadas'])}</td><td class="px-4 py-3 text-right">${formatCurrency(costPerMessage)}</td></tr>`;
-            });
-            
-            // 6. Popular tabela de Anúncios
-            const adsTableBody = document.getElementById('ads-table-body');
-            adData.forEach(item => {
-                adsTableBody.innerHTML += `<tr class="border-b border-gray-700 hover:bg-gray-600"><td class="px-4 py-3 font-medium text-white">${item['Nome do anúncio']}</td><td class="px-4 py-3 text-right">${formatCurrency(item['Valor gasto (BRL)'])}</td><td class="px-4 py-3 text-right">${formatNumber(item['Cliques no link'])}</td><td class="px-4 py-3 text-right">${item['CTR (taxa de cliques no link)'].toFixed(2)}%</td></tr>`;
-            });
+            // 4. Tabelas (Otimizado)
+            const adsetsTableHTML = `<table class="w-full text-left text-sm text-gray-300"><thead class="bg-gray-700 text-xs uppercase text-gray-400 sticky top-0"><tr><th class="px-4 py-3">Conjunto</th><th class="px-4 py-3 text-right">Gasto</th><th class="px-4 py-3 text-right">Mensagens</th><th class="px-4 py-3 text-right">Custo</th></tr></thead><tbody>${adSetData.map(item => { const cost = item['Conversas por mensagens iniciadas'] ? item['Valor gasto (BRL)'] / item['Conversas por mensagens iniciadas'] : 0; return `<tr class="border-b border-gray-700 hover:bg-gray-600"><td class="px-4 py-3 font-medium text-white">${item['Nome do conjunto de anúncios']}</td><td class="px-4 py-3 text-right">${formatCurrency(item['Valor gasto (BRL)'])}</td><td class="px-4 py-3 text-right">${formatNumber(item['Conversas por mensagens iniciadas'])}</td><td class="px-4 py-3 text-right">${formatCurrency(cost)}</td></tr>`; }).join('')}</tbody></table>`;
+            document.getElementById('adsets-table-container').innerHTML = adsetsTableHTML;
+
+            const adsTableHTML = `<table class="w-full text-left text-sm text-gray-300"><thead class="bg-gray-700 text-xs uppercase text-gray-400 sticky top-0"><tr><th class="px-4 py-3">Anúncio</th><th class="px-4 py-3 text-right">Gasto</th><th class="px-4 py-3 text-right">Cliques</th><th class="px-4 py-3 text-right">CTR</th></tr></thead><tbody>${adData.map(item => `<tr class="border-b border-gray-700 hover:bg-gray-600"><td class="px-4 py-3 font-medium text-white">${item['Nome do anúncio']}</td><td class="px-4 py-3 text-right">${formatCurrency(item['Valor gasto (BRL)'])}</td><td class="px-4 py-3 text-right">${formatNumber(item['Cliques no link'])}</td><td class="px-4 py-3 text-right">${item['CTR (taxa de cliques no link)'].toFixed(2)}%</td></tr>`).join('')}</tbody></table>`;
+            document.getElementById('ads-table-container').innerHTML = adsTableHTML;
         }
-        
-        // --- INICIALIZAÇÃO E EVENTOS ---
 
+        // --- Lógica de Filtro ---
+        function applyFilter(days = null) {
+            const endDate = new Date();
+            const startDate = new Date();
+            if (days) {
+                startDate.setDate(endDate.getDate() - (days - 1));
+            }
+            const startStr = days ? formatDate(startDate) : '1970-01-01';
+            const endStr = formatDate(endDate);
+
+            const filteredCampaigns = allCampaignData.filter(d => d.Dia >= startStr && d.Dia <= endStr);
+            const filteredAdSets = allAdSetData.filter(d => d.Dia >= startStr && d.Dia <= endStr);
+            const filteredAds = allAdData.filter(d => d.Dia >= startStr && d.Dia <= endStr);
+            updateDashboard(filteredCampaigns, filteredAdSets, filteredAds);
+        }
+
+        // --- Inicialização ---
         document.addEventListener('DOMContentLoaded', async () => {
+            const loadingEl = document.getElementById('loading-overlay');
             try {
-                // Busca os dados das 3 abas da planilha em paralelo
-                const [campaignRes, adSetRes, adRes] = await Promise.all([
-                    fetch(URL_CAMPAIGN), fetch(URL_ADSET), fetch(URL_AD)
-                ]);
-
-                const [campaignText, adSetText, adText] = await Promise.all([
-                    campaignRes.text(), adSetRes.text(), adRes.text()
-                ]);
-
-                // Processa e converte os dados para o formato correto
-                allCampaignData = parseCSV(campaignText).map(row => ({
-                    ...row,
-                    'Valor gasto (BRL)': parseCurrency(row['Valor gasto (BRL)']),
-                    'Impressões': parseNumber(row['Impressões']),
-                    'Alcance': parseNumber(row['Alcance']),
-                    'Conversas por mensagens iniciadas': parseNumber(row['Conversas por mensagens iniciadas']),
-                    'Dia': parseDate(row['Dia'])
-                }));
+                const [campaignRes, adSetRes, adRes] = await Promise.all([ fetch(buildSheetUrl(GID_CAMPAIGN)), fetch(buildSheetUrl(GID_ADSET)), fetch(buildSheetUrl(GID_AD)) ]);
+                if (!campaignRes.ok || !adSetRes.ok || !adRes.ok) throw new Error("Falha ao buscar dados da planilha.");
                 
-                allAdSetData = parseCSV(adSetText).map(row => ({
-                    ...row,
-                    'Valor gasto (BRL)': parseCurrency(row['Valor gasto (BRL)']),
-                    'Conversas por mensagens iniciadas': parseNumber(row['Conversas por mensagens iniciadas']),
-                    'Dia': parseDate(row['Dia'])
-                }));
+                const [campaignText, adSetText, adText] = await Promise.all([ campaignRes.text(), adSetRes.text(), adRes.text() ]);
 
-                allAdData = parseCSV(adText).map(row => ({
-                    ...row,
-                    'Valor gasto (BRL)': parseCurrency(row['Valor gasto (BRL)']),
-                    'Cliques no link': parseNumber(row['Cliques no link']),
-                    'CTR (taxa de cliques no link)': parsePercentage(row['CTR (taxa de cliques no link)']),
-                    'Dia': parseDate(row['Dia'])
-                }));
-
-                // Define as datas iniciais no filtro
-                const today = new Date().toISOString().split('T')[0];
-                const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 2).toISOString().split('T')[0];
-                document.getElementById('date-start').value = firstDayOfMonth;
-                document.getElementById('date-end').value = today;
-
-                // Força o primeiro filtro para renderizar o dashboard inicial
-                document.getElementById('filter-button').click();
+                allCampaignData = parseCSV(campaignText).map(row => ({...row, 'Valor gasto (BRL)': parseCurrency(row['Valor gasto (BRL)']), 'Impressões': parseNumber(row['Impressões']), 'Alcance': parseNumber(row['Alcance']), 'Conversas por mensagens iniciadas': parseNumber(row['Conversas por mensagens iniciadas']), 'Dia': parseDate(row['Dia']) })).filter(r => r.Dia);
+                allAdSetData = parseCSV(adSetText).map(row => ({...row, 'Valor gasto (BRL)': parseCurrency(row['Valor gasto (BRL)']), 'Conversas por mensagens iniciadas': parseNumber(row['Conversas por mensagens iniciadas']), 'Dia': parseDate(row['Dia']) })).filter(r => r.Dia);
+                allAdData = parseCSV(adText).map(row => ({...row, 'Valor gasto (BRL)': parseCurrency(row['Valor gasto (BRL)']), 'Cliques no link': parseNumber(row['Cliques no link']), 'CTR (taxa de cliques no link)': parsePercentage(row['CTR (taxa de cliques no link)']), 'Dia': parseDate(row['Dia']) })).filter(r => r.Dia);
+                
+                if (allCampaignData.length === 0) {
+                   loadingEl.innerHTML = '<p>Nenhum dado encontrado na planilha de Campanhas. Verifique se a planilha está preenchida corretamente.</p>';
+                   return;
+                }
+                
+                // Event Listeners dos botões de filtro
+                const filterContainer = document.getElementById('filter-container');
+                filterContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'BUTTON') return;
+                    filterContainer.querySelector('.active').classList.remove('active');
+                    e.target.classList.add('active');
+                    if (e.target.id === 'btn-7-days') applyFilter(7);
+                    else if (e.target.id === 'btn-30-days') applyFilter(30);
+                    else applyFilter(null);
+                });
+                
+                // Aplica o filtro inicial (Últimos 7 dias)
+                applyFilter(7);
 
             } catch (error) {
                 console.error("Erro ao carregar os dados da planilha:", error);
-                document.getElementById('loading-overlay').innerHTML = '<p>Erro ao carregar os dados. Verifique o console para mais detalhes.</p>';
+                loadingEl.innerHTML = `<p>Erro ao carregar os dados: ${error.message}. Verifique o console para mais detalhes.</p>`;
             } finally {
-                // Esconde o overlay de carregamento
-                document.getElementById('loading-overlay').style.display = 'none';
+                if (allCampaignData.length > 0) loadingEl.style.display = 'none';
             }
-            
-            // Adiciona o evento ao botão de filtrar
-            document.getElementById('filter-button').addEventListener('click', () => {
-                const startDate = document.getElementById('date-start').value;
-                const endDate = document.getElementById('date-end').value;
-
-                if (!startDate || !endDate) {
-                    alert("Por favor, selecione as duas datas.");
-                    return;
-                }
-
-                const filteredCampaigns = allCampaignData.filter(d => d.Dia >= startDate && d.Dia <= endDate);
-                const filteredAdSets = allAdSetData.filter(d => d.Dia >= startDate && d.Dia <= endDate);
-                const filteredAds = allAdData.filter(d => d.Dia >= startDate && d.Dia <= endDate);
-
-                updateDashboard(filteredCampaigns, filteredAdSets, filteredAds);
-            });
         });
     </script>
 </body>
